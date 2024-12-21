@@ -27,26 +27,57 @@ func (a *App) Greet(name string) string {
 }
 
 // 根据规格和材质查询物料
-func (a *App) GoSearchMaterials(outerDiameter string, wallThickness string, material string) ([]Material, error) {
-	materialService := NewMaterialService()
-	materials, err := materialService.GetByOuterDiameterWallThicknessMaterial(outerDiameter, wallThickness, material)
+func (a *App) GoSearchComponents(outerDiameter string, wallThickness string, material string, code string) ([]Component, error) {
+	Log.Info("查询物料: ", outerDiameter, wallThickness, material, code)
+	materialService := NewComponentService()
+	components, err := materialService.SearchComponents(outerDiameter, wallThickness, material, code)
 	if err != nil {
+		Log.Error("查询物料失败: ", err)
 		return nil, err
 	}
-	return materials, nil
+	return components, nil
 }
 
 // 添加物料
-func (a *App) GoAddMaterial(outerDiameter string, wallThickness string, material string, code string) error {
-	materialService := NewMaterialService()
-	err := materialService.Create(&Material{
+func (a *App) GoAddComponent(outerDiameter string, wallThickness string, material string, code string) error {
+	Log.Info("添加物料: ", outerDiameter, wallThickness, material, code)
+	materialService := NewComponentService()
+	err := materialService.AddComponent(&Component{
 		OuterDiameter: outerDiameter,
 		WallThickness: wallThickness,
 		Material:      material,
 		Code:          code,
 	})
 	if err != nil {
+		Log.Error("添加物料失败: ", err)
 		return err
 	}
 	return nil
+}
+
+// 添加材质编码
+func (a *App) GoAddMaterial(code string, remark string) error {
+	Log.Info("添加材质: ", code, remark)
+	materialService := NewComponentService()
+	err := materialService.AddMaterial(&Material{
+		Code:   code,
+		Remark: remark,
+	})
+	if err != nil {
+		Log.Error("添加材质失败: ", err)
+		return err
+	}
+	return nil
+}
+
+// 获取所有材质
+func (a *App) GoGetAllMaterial() ([]Material, error) {
+	Log.Info("查询所有材质")
+	materialService := NewComponentService()
+	materials, err := materialService.GetAllMaterial()
+	if err != nil {
+		Log.Error("查询材质失败: ", err)
+		return nil, err
+	}
+	return materials, nil
 }
