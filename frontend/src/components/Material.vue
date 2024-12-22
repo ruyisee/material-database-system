@@ -351,6 +351,7 @@ const handleCurrentChange = (val) => {
 
 onMounted(() => {
   doGetAllMaterial()
+  doSelectComponents()
 })
 </script>
 
