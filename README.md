@@ -1,6 +1,13 @@
 # README
 
-## About
+## 物料查询小工具
+使用[wails](https://github.com/wailsapp/wails)技术开发的简单桌面程序。使用了go + vue 
+
+用于物料组件的录入和查询
+
+wails挺好用，在windows上打包后的大小是13.7M
+
+---
 
 This is the official Wails Vue template.
 
