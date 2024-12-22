@@ -10,12 +10,28 @@ export function GoAddMaterial(arg1, arg2) {
   return window['go']['main']['App']['GoAddMaterial'](arg1, arg2);
 }
 
+export function GoDeleteComponent(arg1) {
+  return window['go']['main']['App']['GoDeleteComponent'](arg1);
+}
+
+export function GoEditComponent(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['GoEditComponent'](arg1, arg2, arg3, arg4, arg5);
+}
+
 export function GoGetAllMaterial() {
   return window['go']['main']['App']['GoGetAllMaterial']();
 }
 
+export function GoImportComponents(arg1) {
+  return window['go']['main']['App']['GoImportComponents'](arg1);
+}
+
 export function GoSearchComponents(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['GoSearchComponents'](arg1, arg2, arg3, arg4);
+}
+
+export function GoUploadFile(arg1) {
+  return window['go']['main']['App']['GoUploadFile'](arg1);
 }
 
 export function Greet(arg1) {

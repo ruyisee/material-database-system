@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/sirupsen/logrus"
 )
@@ -57,6 +60,36 @@ func (a *App) GoAddComponent(outerDiameter string, wallThickness string, materia
 	return nil
 }
 
+// 删除物料
+func (a *App) GoDeleteComponent(code string) error {
+	logrus.Info("删除物料: ", code)
+	materialService := NewComponentService()
+	err := materialService.DeleteComponent(code)
+	if err != nil {
+		logrus.WithError(err).Warn("删除物料失败")
+		return err
+	}
+	return nil
+}
+
+// 编辑物料
+func (a *App) GoEditComponent(id int, code string, outerDiameter string, wallThickness string, material string) error {
+	logrus.Info("编辑物料: ", code, outerDiameter, wallThickness, material)
+	materialService := NewComponentService()
+	err := materialService.UpdateComponent(&Component{
+		ID:            uint(id),
+		Code:          code,
+		OuterDiameter: outerDiameter,
+		WallThickness: wallThickness,
+		Material:      material,
+	})
+	if err != nil {
+		logrus.WithError(err).Warn("编辑物料失败")
+		return err
+	}
+	return nil
+}
+
 // 添加材质编码
 func (a *App) GoAddMaterial(code string, remark string) error {
 	logrus.Info("添加材质: ", code, remark)
@@ -82,4 +115,36 @@ func (a *App) GoGetAllMaterial() ([]Material, error) {
 		return nil, err
 	}
 	return materials, nil
+}
+
+// 导入物料
+func (a *App) GoImportComponents(file string) string {
+	logrus.Info("导入物料: ", file)
+	materialService := NewComponentService()
+	result := materialService.ImportComponents(file)
+	logrus.Warn("导入物料情况汇总: ", result)
+	return result
+}
+
+// 处理文件上传
+func (a *App) GoUploadFile(fileContent string) (string, error) {
+	// 创建临时目录
+	tempDir := os.TempDir()
+	tempFile := filepath.Join(tempDir, "import.csv")
+
+	// 将 Base64 字符串转换为字节
+	fileData, err := base64.StdEncoding.DecodeString(fileContent)
+	if err != nil {
+		logrus.WithError(err).Error("解码文件内容失败")
+		return "", err
+	}
+
+	// 写入文件
+	err = os.WriteFile(tempFile, fileData, 0644)
+	if err != nil {
+		logrus.WithError(err).Error("写入文件失败")
+		return "", err
+	}
+
+	return tempFile, nil
 }

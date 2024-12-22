@@ -6,8 +6,16 @@ export function GoAddComponent(arg1:string,arg2:string,arg3:string,arg4:string):
 
 export function GoAddMaterial(arg1:string,arg2:string):Promise<void>;
 
+export function GoDeleteComponent(arg1:string):Promise<void>;
+
+export function GoEditComponent(arg1:number,arg2:string,arg3:string,arg4:string,arg5:string):Promise<void>;
+
 export function GoGetAllMaterial():Promise<Array<main.Material>>;
 
+export function GoImportComponents(arg1:string):Promise<string>;
+
 export function GoSearchComponents(arg1:string,arg2:string,arg3:string,arg4:string):Promise<Array<main.Component>>;
+
+export function GoUploadFile(arg1:string):Promise<string>;
 
 export function Greet(arg1:string):Promise<string>;
