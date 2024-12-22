@@ -110,18 +110,19 @@ const doSelectComponents = () => {
     selectedComponentsData.wallThickness,
     selectedComponentsData.material,
     selectedComponentsData.code
-  ).then((selectedComponents, err) => {
-    if (err != null) {
-      ElMessage.error('查询失败: ' + err)
-    } else {
+  )
+    .then((selectedComponents) => {
       componentsList.value = []
       selectedComponents.forEach((component) => {
         console.log(component)
         componentsList.value.push(component)
       })
       ElMessage.success('查询成功')
-    }
-  })
+    })
+    .catch((err) => {
+      console.error('查询失败:', err)
+      ElMessage.error('查询失败: ' + err)
+    })
 }
 
 const doAddComponent = () => {
@@ -129,42 +130,46 @@ const doAddComponent = () => {
   // 调用后端接口
   // 后端接口返回数据
   // 更新materials数据
-  GoAddComponent(newComponent.outerDiameter, newComponent.wallThickness, newComponent.material, newComponent.code).then(
-    (err) => {
-      if (err) {
-        ElMessage.error('添加物料失败: ' + err)
-      } else {
-        ElMessage.success('添加物料成功')
-      }
-    }
-  )
+  GoAddComponent(newComponent.outerDiameter, newComponent.wallThickness, newComponent.material, newComponent.code)
+    .then(() => {
+      ElMessage.success('添加物料成功')
+    })
+    .catch((err) => {
+      console.error('添加物料失败:', err)
+      ElMessage.error('添加物料失败: ' + err)
+    })
 }
 
 const doAddMaterialType = () => {
   console.log(newMaterialType)
-  GoAddMaterial(newMaterialType.code, newMaterialType.remark).then((err) => {
-    if (err) {
-      ElMessage.error('添加材质失败: ' + err)
-    } else {
+  console.log(newMaterialType.code)
+  console.log(newMaterialType.remark)
+  GoAddMaterial(newMaterialType.code, newMaterialType.remark)
+    .then((result) => {
+      // Wails在调用Go函数时，如果返回error，会将error转换为rejected promise
       ElMessage.success('添加材质成功')
       doGetAllMaterial()
-    }
-  })
+    })
+    .catch((err) => {
+      console.error('添加材质失败:', err)
+      ElMessage.error('添加材质失败: ' + err)
+    })
 }
 
 const doGetAllMaterial = () => {
-  GoGetAllMaterial().then((materials, err) => {
-    if (err) {
-      ElMessage.error('获取材质失败: ' + err)
-    } else {
+  GoGetAllMaterial()
+    .then((materials) => {
       materialList.value = []
       materials.forEach((material) => {
         console.log(material)
         materialList.value.push(material)
       })
       ElMessage.success('获取材质成功')
-    }
-  })
+    })
+    .catch((err) => {
+      console.error('获取材质失败:', err)
+      ElMessage.error('获取材质失败: ' + err)
+    })
 }
 
 // 分页相关数据

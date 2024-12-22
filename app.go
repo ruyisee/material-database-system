@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+
+	"github.com/sirupsen/logrus"
 )
 
 // App struct
@@ -28,11 +30,11 @@ func (a *App) Greet(name string) string {
 
 // 根据规格和材质查询物料
 func (a *App) GoSearchComponents(outerDiameter string, wallThickness string, material string, code string) ([]Component, error) {
-	Log.Info("查询物料: ", outerDiameter, wallThickness, material, code)
+	logrus.Info("查询物料: ", outerDiameter, wallThickness, material, code)
 	materialService := NewComponentService()
 	components, err := materialService.SearchComponents(outerDiameter, wallThickness, material, code)
 	if err != nil {
-		Log.Error("查询物料失败: ", err)
+		logrus.WithError(err).Warn("查询物料失败")
 		return nil, err
 	}
 	return components, nil
@@ -40,7 +42,7 @@ func (a *App) GoSearchComponents(outerDiameter string, wallThickness string, mat
 
 // 添加物料
 func (a *App) GoAddComponent(outerDiameter string, wallThickness string, material string, code string) error {
-	Log.Info("添加物料: ", outerDiameter, wallThickness, material, code)
+	logrus.Info("添加物料: ", outerDiameter, wallThickness, material, code)
 	materialService := NewComponentService()
 	err := materialService.AddComponent(&Component{
 		OuterDiameter: outerDiameter,
@@ -49,7 +51,7 @@ func (a *App) GoAddComponent(outerDiameter string, wallThickness string, materia
 		Code:          code,
 	})
 	if err != nil {
-		Log.Error("添加物料失败: ", err)
+		logrus.WithError(err).Warn("添加物料失败")
 		return err
 	}
 	return nil
@@ -57,14 +59,14 @@ func (a *App) GoAddComponent(outerDiameter string, wallThickness string, materia
 
 // 添加材质编码
 func (a *App) GoAddMaterial(code string, remark string) error {
-	Log.Info("添加材质: ", code, remark)
+	logrus.Info("添加材质: ", code, remark)
 	materialService := NewComponentService()
 	err := materialService.AddMaterial(&Material{
 		Code:   code,
 		Remark: remark,
 	})
 	if err != nil {
-		Log.Error("添加材质失败: ", err)
+		logrus.WithError(err).Warn("添加材质失败")
 		return err
 	}
 	return nil
@@ -72,11 +74,11 @@ func (a *App) GoAddMaterial(code string, remark string) error {
 
 // 获取所有材质
 func (a *App) GoGetAllMaterial() ([]Material, error) {
-	Log.Info("查询所有材质")
+	logrus.Info("查询所有材质")
 	materialService := NewComponentService()
 	materials, err := materialService.GetAllMaterial()
 	if err != nil {
-		Log.Error("查询材质失败: ", err)
+		logrus.WithError(err).Warn("查询材质失败")
 		return nil, err
 	}
 	return materials, nil

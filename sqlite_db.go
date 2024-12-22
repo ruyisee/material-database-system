@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -15,14 +16,14 @@ import (
 type Component struct {
 	ID uint `gorm:"primarykey" json:"id"`
 	// 外径
-	OuterDiameter string `gorm:"not null;comment:外径" json:"outerDiameter"`
+	OuterDiameter string `gorm:"not null;uniqueIndex:Idx_outer_diameter_wall_thickness_material;comment:外径" json:"outerDiameter"`
 	// 壁厚
-	WallThickness string `gorm:"not null;comment:壁厚" json:"wallThickness"`
+	WallThickness string `gorm:"not null;uniqueIndex:Idx_outer_diameter_wall_thickness_material;comment:壁厚" json:"wallThickness"`
 	// 材质
-	Material  string    `gorm:"not null;comment:材质" json:"material"`          // 材质(如 304)
-	Code      string    `gorm:"uniqueIndex;not null;comment:物料码" json:"code"` // 物料码
-	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`             // 创建时间
-	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`             // 更新时间
+	Material  string    `gorm:"not null;uniqueIndex:Idx_outer_diameter_wall_thickness_material;comment:材质" json:"material"` // 材质(如 304)
+	Code      string    `gorm:"uniqueIndex;not null;comment:物料码" json:"code"`                                               // 物料码
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`                                                           // 创建时间
+	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`                                                           // 更新时间
 }
 
 // 材质编码
@@ -114,7 +115,7 @@ func (s *ComponentService) SearchComponents(outerDiameter string, wallThickness 
 	if code != "" {
 		component, err := s.GetComponentByCode(code)
 		if err != nil {
-			Log.Error("--查询物料失败: ", err)
+			logrus.WithError(err).Warn("查询物料失败")
 			return nil, err
 		}
 		return []Component{*component}, nil
@@ -133,7 +134,7 @@ func (s *ComponentService) SearchComponents(outerDiameter string, wallThickness 
 		err := s.db.Where(selectSql, outerDiameter, wallThickness, material).Find(&components).Error
 		return components, err
 	} else {
-		Log.Info("查询所有物料")
+		logrus.Info("查询所有物料")
 		err := s.db.Find(&components).Error
 		return components, err
 	}

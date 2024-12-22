@@ -2,34 +2,34 @@ package main
 
 import (
 	"os"
-	"path"
-	"time"
+	"path/filepath"
+	"runtime"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
 )
 
-// InitLogger 初始化日志配置
-func InitLogger() {
-	// 创建 log 目录
-	logPath := "logs"
-	if err := os.MkdirAll(logPath, 0777); err != nil {
-		panic(err)
+func InitLogger() error {
+	// 获取应用程序的日志目录
+	logDir := getLogDir()
+
+	// 创建日志目录
+	if err := os.MkdirAll(logDir, 0777); err != nil {
+		return err
 	}
 
-	// 设置日志文件
-	filename := path.Join(logPath, "log.log")
+	// 设置日志文件路径
+	logPath := filepath.Join(logDir, "app.log")
 
 	// 配置 rotatelogs
 	writer, err := rotatelogs.New(
-		filename+".%Y%m%d%H%M",                    // 日志文件名格式
-		rotatelogs.WithLinkName(filename),         // 生成软链，指向最新日志文件
-		rotatelogs.WithMaxAge(30*24*time.Hour),    // 最多保存30天
-		rotatelogs.WithRotationSize(10*1024*1024), // 10MB分割一次
-		rotatelogs.WithRotationCount(5),           // 保留5个文件
+		logPath+".%Y%m%d%H%M",
+		rotatelogs.WithLinkName(logPath),
+		rotatelogs.WithRotationSize(10*1024*1024),
+		rotatelogs.WithRotationCount(5),
 	)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// 配置 logrus
@@ -39,6 +39,30 @@ func InitLogger() {
 	})
 	logrus.SetOutput(writer)
 	logrus.SetLevel(logrus.InfoLevel)
+
+	// 记录初始化成功日志
+	logrus.WithField("logPath", logPath).Info("日志系统初始化成功")
+
+	return nil
 }
 
-var Log = logrus.New()
+// getLogDir 根据操作系统返回合适的日志目录
+func getLogDir() string {
+	var baseDir string
+
+	switch runtime.GOOS {
+	case "windows":
+		// Windows: %APPDATA%/material-database-system/logs
+		baseDir = os.Getenv("APPDATA")
+	case "darwin":
+		// macOS: ~/Library/Logs/material-database-system
+		homeDir, _ := os.UserHomeDir()
+		baseDir = filepath.Join(homeDir, "Library", "Logs")
+	default:
+		// Linux: ~/.local/share/material-database-system/logs
+		homeDir, _ := os.UserHomeDir()
+		baseDir = filepath.Join(homeDir, ".local", "share")
+	}
+
+	return filepath.Join(baseDir, "material-database-system", "logs")
+}
